@@ -1,3 +1,8 @@
+
+const projectStorage = {};
+let projectCounter = 0;
+let projects = [];
+
 class Project {
     constructor(title) {
         this.title = title;
@@ -15,6 +20,17 @@ class Task {
 }
 
 // functions
+export default function createProject(projectTitle) {
+    projectCounter++;
+    const projectName = `project${projectCounter}`;
+    const project = new Project(projectTitle);
+    
+    console.log(project)
+    // Add the project to the projects array
+    projects.push(project);
+
+    console.log(projects)
+}
 
 function addTask(task) {
     this.tasks.push(task)
@@ -47,15 +63,3 @@ const task1 = new Task("App Wireframing", "Design basic app structure", "2024-07
 const task2 = new Task("UI Design", "Create app interface", "2024-08-10", "Follow material design guidelines");
 const task3 = new Task("Frontend Development", "Implement using React Native", "2024-09-01", "Ensure cross-platform compatibility");
 const task4 = new Task("Backend Integration", "Connect to REST API", "2024-09-20", "Implement offline support");
-
-// Add tasks to the project
-project2.addTask(task1);
-project2.addTask(task2);
-project2.addTask(task3);
-project2.addTask(task4);
-
-// Log the project name and detailed information for each task
-project2.logProjectDetails();
-
-// Delete a task from the project by index (e.g., the second task)
-project2.deleteTask(1);
