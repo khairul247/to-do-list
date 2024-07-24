@@ -1,5 +1,4 @@
 
-const projectStorage = {};
 let projectCounter = 0;
 let projects = [];
 
@@ -20,16 +19,53 @@ class Task {
 }
 
 // functions
-export default function createProject(projectTitle) {
-    projectCounter++;
-    const projectName = `project${projectCounter}`;
-    const project = new Project(projectTitle);
-    
-    console.log(project)
-    // Add the project to the projects array
-    projects.push(project);
+function createProject(projectTitle) {
 
-    console.log(projects)
+    const project = new Project(projectTitle);
+    projects.push(project);
+    console.log(projects);
+    addProjectToList();
+
+}
+
+export function showProjectForm() {
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+    document.body.appendChild(overlay);
+
+    const form = document.createElement('form');
+    form.classList.add('project-form');
+    form.innerHTML = `
+        <input type="text" id="projectTitle" placeholder="Project Title" required>
+        <button type="submit">Add</button>
+        <button type="button" class="cancel-btn">Cancel</button>
+    `;
+
+    overlay.appendChild(form);
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('projectTitle').value;
+        createProject(title);
+        closeForm();
+    });
+
+    const cancelBtn = form.querySelector('.cancel-btn');
+    cancelBtn.addEventListener('click', closeForm);
+
+    function closeForm() {
+        document.body.removeChild(overlay);
+    }
+}
+
+function addProjectToList () {
+    projectCounter++
+    const projectHeader = document.createElement('h2');
+    projectHeader.classList.add("project-header");
+    projectHeader.textContent = projects[projects.length-1].title;
+    const content = document.getElementById('content');
+
+    content.appendChild(projectHeader);
 }
 
 function addTask(task) {

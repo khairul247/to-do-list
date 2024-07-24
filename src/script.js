@@ -1,7 +1,7 @@
 import './style.css';
 import logo from './images/calendar-todo-fill.svg';
 import add from './images/add.svg';
-import createProject from './logic.js';
+import { showProjectForm } from './logic.js'
 
 
 const img = document.createElement('img');
@@ -16,6 +16,8 @@ plus.className = 'plus-sign';
 document.querySelector('.header').appendChild(img);
 document.querySelector('.create-project').appendChild(plus);
 
-createProject("Project 2")
-createProject("Project 2")
-createProject("Project 2")
+const plusBtn = document.querySelector('.plus-sign');
+plusBtn.addEventListener('click',() => {
+    showProjectForm();
+});
+
