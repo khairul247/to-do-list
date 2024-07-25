@@ -1,11 +1,11 @@
 import deleteImg from './images/delete.svg';
+import notesImg from './images/notes.svg';
 
-
-let projectCounter = 0;
 let projects = [];
 
 class Project {
     constructor(title) {
+        this.id = Date.now();
         this.title = title;
         this.tasks = []; // Initialize tasks as an empty array
     }
@@ -58,22 +58,19 @@ function createProject(projectTitle) {
 
     const project = new Project(projectTitle);
     projects.push(project);
-    console.log(projects);
-    addProjectToList();
+    addProjectToList(project);
 
 }
 
-function addProjectToList () {
-
-    projectCounter++
+function addProjectToList (project) {
 
     const projCard = document.createElement('div');
     projCard.className ='project';
-    projCard.id = `project-${projectCounter}`;
+    projCard.id = `project-${project.id}`;
 
     const projectHeader = document.createElement('div');
     projectHeader.classList.add("project-header");
-    projectHeader.textContent = projects[projects.length-1].title;
+    projectHeader.textContent = project.title;
 
     const BtnBox = document.createElement('div');
     BtnBox.className = 'buttons-box'
@@ -82,12 +79,14 @@ function addProjectToList () {
     addTaskBtn.classList.add('add-task-btn');
     addTaskBtn.textContent =  "Add New Task";
 
-    addTaskBtn.addEventListener('click', showTaskForm);
+    addTaskBtn.addEventListener('click', function () {
+        showTaskForm(project.id);
+    });
 
     const deleteIcon = document.createElement('img');
     deleteIcon.src = deleteImg;
     deleteIcon.alt = 'Delete Logo';
-    deleteIcon.className = 'delete-logo';
+    deleteIcon.className = 'icons';
 
     deleteIcon.addEventListener('click', function() {
         projCard.remove();
@@ -105,7 +104,7 @@ function addProjectToList () {
 }
 
 
-function showTaskForm() {
+function showTaskForm(projectId) {
     const overlay = document.createElement('div');
     overlay.classList.add('overlay');
     document.body.appendChild(overlay);
@@ -138,8 +137,8 @@ function showTaskForm() {
         const description = document.getElementById('taskDescription').value;
         const dueDate = document.getElementById('taskDueDate').value;
         const notes = document.getElementById('taskNotes').value;
-        
-        createTask(title, description, dueDate, notes);
+
+        createTask(projectId, title, description, dueDate, notes);
         closeForm();
     });
 
@@ -152,29 +151,97 @@ function showTaskForm() {
 }
 
 
-function createTask(title, description, dueDate, notes) {
+function createTask(projectId,title, description, dueDate, notes) {
 
     const task = new Task(title, description, dueDate, notes);
-    projects[projectCounter-1].tasks.push(task);
-    console.log(projects[projectCounter-1]);
+    const project = projects.find(p => p.id === projectId);
+    project.tasks.push(task)
+
+    const taskCard = document.createElement('div');
+    taskCard.classList.add('task-card')
+
+    const circle = createCircle();
+
+    const notesIcon = document.createElement('img');
+    notesIcon.src = notesImg;
+    notesIcon.className = 'icons';
+    notesIcon.id = 'note-icon';
+    notesIcon.addEventListener('click', () => {
+        showTaskDetails(task,taskCard);
+    })
+
+
+    const deleteIcon = document.createElement('img');
+    deleteIcon.src = deleteImg;
+    deleteIcon.alt = 'Delete Logo';
+    deleteIcon.className = 'icons';
+    deleteIcon.addEventListener('click', () => {
+        taskCard.remove();
+    })
+
+    const taskInfo = document.createElement('div');
+    taskInfo.classList.add('task-info')
+    taskInfo.innerHTML = `
+    <h3>${task.title}</h3>
+    <p class = "due-date" >${task.dueDate}</p>
+    `;
+
+    taskCard.appendChild(circle);
+    taskCard.appendChild(taskInfo);
+    taskCard.appendChild(notesIcon);
+    taskCard.appendChild(deleteIcon);
+  
+
+    const projectElement =document.getElementById(`project-${projectId}`);
+    projectElement.appendChild(taskCard);
 }
 
 
-function addTask(task) {
-    this.tasks.push(task)
+function createCircle() {
+    const circle = document.createElement('div');
+    circle.className = 'circle';
+    circle.onclick = function() {
+        const taskCard = this.closest('.task-card');
+        
+        this.classList.toggle('checked');
+        taskCard.classList.toggle('completed');
+        
+        const taskInfo = taskCard.querySelector('.task-info');
+        taskInfo.classList.toggle('completed');
+    };
+
+    return circle;
 }
 
-function deleteTask(taskNumber) {
-    this.tasks.splice(taskNumber-1,1)
-}
+function showTaskDetails(task, taskCard) {
 
-function logProjectDetails() {
-    console.log(`Project: ${this.title}`);
-    this.tasks.forEach((task, index) => {
-        console.log(`  Task ${index + 1}: ${task.title}`);
-        console.log(`    Description: ${task.description}`);
-        console.log(`    Due Date: ${task.dueDate}`);
-        console.log(`    Notes: ${task.notes}`);
-        console.log();  
+    // Create dialogue container
+    const dialogue = document.createElement('div');
+    dialogue.classList.add('task-dialogue');
+
+    // Create dialogue content
+    dialogue.innerHTML = `
+        <h4>${task.title}</h4>
+        <p><strong>Description:</strong> ${task.description}</p>
+        <p><strong>Due Date:</strong> ${task.dueDate}</p>
+        <p><strong>Notes:</strong> ${task.notes}</p>
+        <button class="close-dialogue">Close</button>
+    `;
+
+    // Append dialogue to task card
+    taskCard.appendChild(dialogue);
+
+    // Add event listener to close button
+    const closeButton = dialogue.querySelector('.close-dialogue');
+    closeButton.addEventListener('click', () => {
+        dialogue.remove();
+    });
+
+    // Close dialogue when clicking outside of it
+    document.addEventListener('click', function closeDialogue(e) {
+        if (!dialogue.contains(e.target) && e.target !== notesIcon) {
+            dialogue.remove();
+            document.removeEventListener('click', closeDialogue);
+        }
     });
 }
